@@ -1,0 +1,72 @@
+version: "3.9"
+
+networks:
+  zt-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.100.0/24
+
+services:
+
+  front:
+    build: ./front
+    networks:
+      zt-net:
+        ipv4_address: 192.168.100.10
+    ports:
+      - "3000:3000"
+    depends_on:
+      - access-proxy
+      - authUser
+      - authDevice
+
+  access-proxy:
+    build: ./access-proxy
+    networks:
+      zt-net:
+        ipv4_address: 192.168.100.20
+    ports:
+      - "3001:3000"
+
+  authUser:
+    build: ./authUser
+    networks:
+      zt-net:
+        ipv4_address: 192.168.100.30
+    ports:
+      - "3002:3000"
+    depends_on:
+      - db-authUser
+
+  authDevice:
+    build: ./authDevice
+    networks:
+      zt-net:
+        ipv4_address: 192.168.100.40
+    ports:
+      - "3003:3000"
+    depends_on:
+      - db-authDevice
+
+  db-authUser:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: authUserDB
+    networks:
+      zt-net:
+        ipv4_address: 192.168.100.50
+    ports:
+      - "3307:3306"  # puerto externo 3307 para no pisar el default
+
+  db-authDevice:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: authDeviceDB
+    networks:
+      zt-net:
+        ipv4_address: 192.168.100.60
+    ports:
+      - "3308:3306"  # puerto externo 3308

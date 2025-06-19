@@ -22,7 +22,7 @@ import { Device } from './devices/entities/device.entity';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: [Device],
-      synchronize: true,
+      synchronize: false,
     }),
     DevicesModule,
   ],

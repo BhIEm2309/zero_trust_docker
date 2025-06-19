@@ -1,12 +1,24 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { DevicesService } from './devices.service';
 import { AuthDeviceInput } from './dto/auth-device.input';
+import { RegisterDeviceInput } from './dto/register-device.input';
 import { AuthResponse } from './models/auth-response.model';
 import { VerifyResponse } from './models/verify-response.model';
+import { Device } from './entities/device.entity';
 
 @Resolver()
 export class DevicesResolver {
   constructor(private readonly devicesService: DevicesService) {}
+
+  /**
+   * Mutación para registrar un nuevo dispositivo
+   */
+  @Mutation(() => Device)
+  async registerDevice(
+    @Args('registerDeviceInput') input: RegisterDeviceInput,
+  ): Promise<Device> {
+    return await this.devicesService.registerDevice(input);
+  }
 
   /**
    * Mutación que autentica un dispositivo y devuelve un token

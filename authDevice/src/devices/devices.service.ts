@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Device } from './entities/device.entity';
+import { RegisterDeviceInput } from './dto/register-device.input';
 import * as jwt from 'jsonwebtoken';
 
 @Injectable()
@@ -10,6 +11,27 @@ export class DevicesService {
     @InjectRepository(Device)
     private readonly deviceRepo: Repository<Device>,
   ) {}
+
+  /**
+   * Nuevo método para registrar un dispositivo
+   */
+  async registerDevice(input: RegisterDeviceInput): Promise<Device> {
+    const existing = await this.deviceRepo.findOne({ where: { deviceId: input.deviceId } });
+
+    if (existing) {
+      throw new Error('Device already registered');
+    }
+
+    const device = this.deviceRepo.create({
+      deviceId: input.deviceId,
+      userId: input.userId,
+      ip: input.ip,
+      mac: input.mac,
+      sistema_op: input.sistema_op,
+    });
+
+    return await this.deviceRepo.save(device);
+  }
 
   /**
    * Genera un token JWT para un deviceId válido
